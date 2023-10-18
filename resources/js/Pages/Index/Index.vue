@@ -2,7 +2,7 @@
     <div>Index</div>
     <Link href="/hello">Show page</Link>
     <div>
-        The messa d df ge is {{ message }}
+        The messa d dhrthretherthf ge is {{ message }}
     </div>
 </template>
 
