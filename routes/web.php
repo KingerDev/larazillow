@@ -31,6 +31,10 @@ Route::resource('listing.offer', ListingOfferController::class)
     ->middleware('auth')
     ->only(['store']);
 
+Route::resource('notification', \App\Http\Controllers\NotificationController::class)
+    ->middleware('auth')
+    ->only(['index']);
+
 Route::get('login', [AuthController::class, 'create'])
     ->name('login');
 Route::post('login', [AuthController::class, 'store'])
