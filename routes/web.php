@@ -7,7 +7,8 @@ use App\Http\Controllers\ListingOfferController;
 use App\Http\Controllers\RealtorListingController;
 use App\Http\Controllers\UserAccountController;
 use Illuminate\Support\Facades\Route;
-
+use Illuminate\Foundation\Auth\EmailVerificationRequest;
+use Illuminate\Http\Request;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -19,9 +20,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/', [IndexController::class, 'index']);
-Route::get('/hello', [IndexController::class, 'show'])
-    ->middleware('auth');
+Route::get('/', [ListingController::class, 'index']);
 
 Route::resource('listing', ListingController::class)
     ->only(['index', 'show'])
@@ -35,6 +34,10 @@ Route::resource('notification', \App\Http\Controllers\NotificationController::cl
     ->middleware('auth')
     ->only(['index']);
 
+Route::put('notification/{notification}/seen', \App\Http\Controllers\NotificationSeenController::class)
+    ->middleware('auth')
+    ->name('notification.seen');
+
 Route::get('login', [AuthController::class, 'create'])
     ->name('login');
 Route::post('login', [AuthController::class, 'store'])
@@ -42,12 +45,33 @@ Route::post('login', [AuthController::class, 'store'])
 Route::delete('logout', [AuthController::class, 'destroy'])
     ->name('logout');
 
+Route::get('/email/verify', function () {
+    return inertia('Auth/VerifyEmail');
+})
+    ->middleware('auth')
+    ->name('verification.notice');
+
+Route::get('/email/verify/{id}/{hash}', function (EmailVerificationRequest $request) {
+    $request->fulfill();
+
+    return redirect()
+        ->route('listing.index')
+        ->with('success', 'Email was verified');
+
+})->middleware(['auth', 'signed'])->name('verification.verify');
+
+Route::post('/email/verification-notification', function (Request $request) {
+    $request->user()->sendEmailVerificationNotification();
+
+    return back()->with('success', 'Verification link sent!');
+})->middleware(['auth', 'throttle:6,1'])->name('verification.send');
+
 Route::resource('user-account', UserAccountController::class)
     ->only(['create', 'store']);
 
 Route::prefix('realtor')
     ->name('realtor.')
-    ->middleware('auth')
+    ->middleware(['auth', 'verified'])
     ->group(function () {
         Route::name('listing.restore')
             ->put('listing/{listing}/restore', [RealtorListingController::class, 'restore'])
