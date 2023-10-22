@@ -19,12 +19,16 @@ This is a web application for a real estate marketplace where users can browse l
 1. Clone the repository:
    ```bash
    git clone https://github.com/yourusername/real-estate-app.git
-2. Run npm install:
+2. Install all dependencies:
    ```bash
    npm install
-3. Migrate a database and seed it:
+3. Configure .env file:
+   ```bash
+   Rename .env.example and configure database connection
+4. Migrate a database and seed it:
    ```bash
    php artisan migrate --seed
-4. You're good to:
+5. You're good to:
    ```bash
    npm run dev
+   php artisan serve
